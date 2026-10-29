@@ -6,7 +6,6 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Реєстрація
   Future<UserCredential> signUp({
     required String email,
     required String password,
@@ -21,7 +20,6 @@ class AuthService {
     }
   }
 
-  // Вхід
   Future<UserCredential> signIn({
     required String email,
     required String password,
@@ -36,7 +34,6 @@ class AuthService {
     }
   }
 
-  // Вихід
   Future<void> signOut() async {
     await _auth.signOut();
   }
@@ -45,17 +42,17 @@ class AuthService {
     switch (e.code) {
       case 'user-not-found':
       case 'invalid-credential':
-        return 'No user found with this email.';
+        return 'Incorrect email or password.';
       case 'wrong-password':
-        return 'The password is incorrect.';
+        return 'Incorrect email or password.';
       case 'email-already-in-use':
-        return 'A user with this email already exists.';
+        return 'An account with this email already exists.';
       case 'weak-password':
-        return 'The password is too weak (minimum 6 characters).';
+        return 'The password does not meet the security requirements.';
       case 'invalid-email':
-        return 'Invalid email format.';
+        return 'Invalid email address format.';
       default:
-        return e.message ?? 'Authentication error. Please try again later.';
+        return e.message ?? 'Sign-in failed. Please try again later.';
     }
   }
 }

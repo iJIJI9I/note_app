@@ -15,19 +15,17 @@ class Note {
     this.updatedAt,
   });
 
- 
   factory Note.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
     return Note(
       id: doc.id,
-      title: data['title'] as String? ?? 'Без заголовка',
+      title: data['title'] as String? ?? 'Untitled note',
       content: data['content'] as String? ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
   }
 
-  
   Map<String, dynamic> toMap() {
     return {
       'title': title,

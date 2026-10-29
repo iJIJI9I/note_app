@@ -1,17 +1,53 @@
-# notes_app
+# Нотатки
 
-A new Flutter project.
+Кросплатформний застосунок Flutter для особистих нотаток. Firebase
+Authentication відповідає за вхід і реєстрацію, Cloud Firestore — за зберігання
+даних користувача.
 
-## Getting Started
+## Можливості
 
-This project is a starting point for a Flutter application.
+- реєстрація та вхід за електронною поштою і паролем;
+- створення, пошук, редагування та видалення нотаток;
+- окрема Firestore-колекція нотаток для кожного `uid`;
+- екран запуску, який відображається, поки Firebase ініціалізується;
+- повідомлення про помилки підключення та повторна спроба ініціалізації.
 
-A few resources to get you started if this is your first Flutter project:
+## Налаштування Firebase
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+1. Створіть Firebase-проєкт і зареєструйте потрібні платформи.
+2. Увімкніть провайдер **Email/Password** у Firebase Authentication.
+3. Налаштуйте Cloud Firestore та правила доступу для шляху
+   `users/{uid}/notes/{noteId}`. Правила мають перевіряти, що
+   `request.auth.uid == uid`.
+4. Згенеруйте `lib/firebase_options.dart` за допомогою FlutterFire CLI.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Запуск
+
+```shell
+flutter pub get
+flutter run
+```
+
+Для перевірок:
+
+```shell
+flutter analyze
+flutter test
+```
+
+## Оцінювання часу запуску
+
+Початковий екран застосунку відображається до завершення ініціалізації Firebase,
+тому користувач одразу бачить стан запуску замість порожнього вікна. Це покращує
+сприйняття швидкодії, але не скорочує фактичний час відповіді Firebase або мережі.
+
+Для вимірювання на пристрої використовуйте profile-збірку, а не debug-запуск:
+
+```shell
+flutter run --profile
+```
+
+Фіксуйте час від запуску процесу до першого кадру та окремо — час до появи
+екрана входу або списку нотаток. Повторіть вимірювання кілька разів на одному
+пристрої й порівнюйте медіану. Результати залежать від платформи, стану мережі,
+наявності локальної сесії та холодного або повторного запуску.

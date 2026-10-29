@@ -1,25 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/note_model.dart';
 
 class NotesRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Отримання посилання  
-  CollectionReference<Map<String, dynamic>> _userNotesCollection(String userId) {
+  CollectionReference<Map<String, dynamic>> _userNotesCollection(
+    String userId,
+  ) {
     return _firestore.collection('users').doc(userId).collection('notes');
   }
 
-  // Потік
   Stream<List<Note>> getNotesStream(String userId) {
     return _userNotesCollection(userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => Note.fromDocument(doc)).toList();
-    });
+          return snapshot.docs.map((doc) => Note.fromDocument(doc)).toList();
+        });
   }
 
-  // Додавання 
   Future<void> addNote({
     required String userId,
     required String title,
@@ -33,7 +33,6 @@ class NotesRepository {
     });
   }
 
-  // Оновлення 
   Future<void> updateNote({
     required String userId,
     required String noteId,
@@ -47,7 +46,6 @@ class NotesRepository {
     });
   }
 
-  // Видалення
   Future<void> deleteNote({
     required String userId,
     required String noteId,
