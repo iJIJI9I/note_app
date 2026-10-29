@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556952519563",
+    "project_id": "notes-app-kursova",
+    "storage_bucket": "notes-app-kursova.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556952519563:android:6f8df42162233c603e658e",
+        "android_client_info": {
+          "package_name": "com.example.notes_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLISv8SBvAmQ7z1H6V_Yr9yizxd2gPxjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
