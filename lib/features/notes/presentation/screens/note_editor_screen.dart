@@ -195,12 +195,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                         controller: _contentController,
                         expands: true,
                         maxLines: null,
+                        maxLength: 20000,
                         textCapitalization: TextCapitalization.sentences,
                         textAlignVertical: TextAlignVertical.top,
                         style: Theme.of(context).textTheme.bodyLarge
                             ?.copyWith(height: 1.6),
                         decoration: const InputDecoration(
                           hintText: 'Write your thoughts…',
+                          counterText: '',
                           alignLabelWithHint: true,
                         ),
                       ),

@@ -39,6 +39,8 @@ dependencies:
   cloud_firestore: ^7.1.0
   intl: ^0.20.3
   flutter_lucide: ^1.62.0
+  firebase_storage: ^14.0.1
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:
