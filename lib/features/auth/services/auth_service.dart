@@ -38,6 +38,14 @@ class AuthService {
     await _auth.signOut();
   }
 
+   Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw _parseAuthError(e);
+    }
+  }
+
   String _parseAuthError(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
