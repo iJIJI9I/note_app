@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -32,8 +35,33 @@ class _NotesListScreenState extends State<NotesListScreen> {
   String _searchQuery = '';
   bool _isSearching = false;
 
+  bool _isOffline = false;
+  late final StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInitialConnectivity();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+      _updateConnectivityStatus,
+    );
+  }
+
+  Future<void> _checkInitialConnectivity() async {
+    final results = await Connectivity().checkConnectivity();
+    _updateConnectivityStatus(results);
+  }
+
+  void _updateConnectivityStatus(List<ConnectivityResult> results) {
+    final offline = results.isEmpty || results.contains(ConnectivityResult.none);
+    if (mounted && offline != _isOffline) {
+      setState(() => _isOffline = offline);
+    }
+  }
+
   @override
   void dispose() {
+    _connectivitySubscription.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -157,6 +185,33 @@ class _NotesListScreenState extends State<NotesListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: _isOffline ? 38 : 0,
+              color: const Color(0xFFFFF3CD),
+              child: _isOffline
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: const [
+                          Icon(LucideIcons.cloud_off, size: 16, color: Color(0xFF856404)),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Offline mode. Changes are saved locally and will sync later.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF856404),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             if (!_isSearching)
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 8, 22, 20),
@@ -334,11 +389,37 @@ class _NoteCard extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 12),
-                    Text(
-                      DateFormat('dd.MM.yyyy · HH:mm')
-                          .format(note.updatedAt ?? note.createdAt),
-                      style: Theme.of(context).textTheme.labelSmall
-                          ?.copyWith(color: const Color(0xFF92968F)),
+                    Row(
+                      children: [
+                        Text(
+                          DateFormat('dd.MM.yyyy · HH:mm')
+                              .format(note.updatedAt ?? note.createdAt),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: const Color(0xFF92968F)),
+                        ),
+                        if (note.isSyncPending) ...[
+                          const SizedBox(width: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(
+                                LucideIcons.cloud_upload,
+                                size: 13,
+                                color: Color(0xFFD97706),
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Sync pending',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFFD97706),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

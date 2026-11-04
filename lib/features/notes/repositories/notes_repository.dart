@@ -14,7 +14,7 @@ class NotesRepository {
   Stream<List<Note>> getNotesStream(String userId) {
     return _userNotesCollection(userId)
         .orderBy('createdAt', descending: true)
-        .snapshots()
+        .snapshots(includeMetadataChanges: true)
         .map((snapshot) {
           return snapshot.docs.map((doc) => Note.fromDocument(doc)).toList();
         });
@@ -25,12 +25,13 @@ class NotesRepository {
     required String title,
     required String content,
   }) async {
-    await _userNotesCollection(userId).add({
+    final docRef = _userNotesCollection(userId).doc();
+    await docRef.set({
       'title': title.trim(),
       'content': content.trim(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': null,
-    });
+    }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
   Future<void> updateNote({
@@ -43,13 +44,16 @@ class NotesRepository {
       'title': title.trim(),
       'content': content.trim(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
   Future<void> deleteNote({
     required String userId,
     required String noteId,
   }) async {
-    await _userNotesCollection(userId).doc(noteId).delete();
+    await _userNotesCollection(userId).doc(noteId).delete().timeout(
+      const Duration(milliseconds: 400),
+      onTimeout: () {},
+    );
   }
 }

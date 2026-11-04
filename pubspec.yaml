@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^7.1.0
   intl: ^0.20.3
   flutter_lucide: ^1.62.0
+  connectivity_plus: ^7.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

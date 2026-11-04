@@ -6,6 +6,7 @@ class Note {
   final String content;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final bool isSyncPending;
 
   Note({
     required this.id,
@@ -13,6 +14,7 @@ class Note {
     required this.content,
     required this.createdAt,
     this.updatedAt,
+    this.isSyncPending = false,
   });
 
   factory Note.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -23,6 +25,7 @@ class Note {
       content: data['content'] as String? ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      isSyncPending: doc.metadata.hasPendingWrites,
     );
   }
 

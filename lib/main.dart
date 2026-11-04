@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,13 +13,19 @@ const _surface = Color(0xFFFFFEFB);
 const _primary = Color(0xFF315C4B);
 const _ink = Color(0xFF242923);
 
-Future<FirebaseApp> _initializeFirebase() {
-  if (Firebase.apps.isNotEmpty) {
-    return Future.value(Firebase.app());
-  }
-  return Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+Future<FirebaseApp> _initializeFirebase() async {
+  final app = Firebase.apps.isNotEmpty
+      ? Firebase.app()
+      : await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  return app;
 }
 
 void main() {
