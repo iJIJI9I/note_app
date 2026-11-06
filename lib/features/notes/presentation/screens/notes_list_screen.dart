@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../models/note_model.dart';
 import '../../repositories/notes_repository.dart';
 import 'note_editor_screen.dart';
@@ -313,7 +314,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
                         onDismissed: (_) => _deleteNote(note),
                         child: _NoteCard(
                           note: note,
-                          color: _noteColors[index % _noteColors.length],
+                          color: NoteColors.get(note.colorIndex),
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(

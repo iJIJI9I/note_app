@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../models/note_model.dart';
 import '../../repositories/notes_repository.dart';
 
@@ -22,6 +23,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late final TextEditingController _contentController;
   bool _isLoading = false;
   late bool _isPinned;
+  late int _selectedColorIndex;
 
   bool get _isEditing => widget.note != null;
 
@@ -33,6 +35,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       text: widget.note?.content ?? '',
     );
     _isPinned = widget.note?.isPinned ?? false;
+    _selectedColorIndex = widget.note?.colorIndex ?? 0;
   }
 
   @override
@@ -60,6 +63,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           title: _titleController.text,
           content: _contentController.text,
           isPinned: _isPinned,
+          colorIndex: _selectedColorIndex,
         );
       } else {
         await _repository.addNote(
@@ -67,6 +71,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           title: _titleController.text,
           content: _contentController.text,
           isPinned: _isPinned,
+          colorIndex: _selectedColorIndex,
         );
       }
 
@@ -133,8 +138,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeBg = NoteColors.get(_selectedColorIndex);
+
     return Scaffold(
+      backgroundColor: activeBg,
       appBar: AppBar(
+        backgroundColor: activeBg,
         title: Text(_isEditing ? 'Edit note' : 'New note'),
         leading: IconButton(
           tooltip: 'Back',
@@ -189,6 +198,45 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Палітра кольорів
+                    SizedBox(
+                      height: 44,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: NoteColors.palette.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 10),
+                        itemBuilder: (context, index) {
+                          final color = NoteColors.palette[index];
+                          final isSelected = _selectedColorIndex == index;
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedColorIndex = index),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFF315C4B)
+                                      : const Color(0xFFD6D2C8),
+                                  width: isSelected ? 2.5 : 1.2,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? const Icon(
+                                      LucideIcons.check,
+                                      size: 18,
+                                      color: Color(0xFF315C4B),
+                                    )
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     TextFormField(
                       controller: _titleController,
                       textCapitalization: TextCapitalization.sentences,

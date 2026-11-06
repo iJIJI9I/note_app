@@ -32,6 +32,7 @@ class NotesRepository {
     required String title,
     required String content,
     bool isPinned = false,
+    int colorIndex = 0,
   }) async {
     final docRef = _userNotesCollection(userId).doc();
     await docRef.set({
@@ -40,6 +41,7 @@ class NotesRepository {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': null,
       'isPinned': isPinned,
+      'colorIndex': colorIndex,
     }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
@@ -49,12 +51,14 @@ class NotesRepository {
     required String title,
     required String content,
     bool isPinned = false,
+    int colorIndex = 0,
   }) async {
     await _userNotesCollection(userId).doc(noteId).update({
       'title': title.trim(),
       'content': content.trim(),
       'updatedAt': FieldValue.serverTimestamp(),
       'isPinned': isPinned,
+      'colorIndex': colorIndex,
     }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
@@ -65,6 +69,7 @@ class NotesRepository {
   }) async {
     await _userNotesCollection(userId).doc(noteId).update({
       'isPinned': !currentStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
     }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
