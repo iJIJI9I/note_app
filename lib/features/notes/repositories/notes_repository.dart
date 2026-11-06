@@ -16,7 +16,14 @@ class NotesRepository {
         .orderBy('createdAt', descending: true)
         .snapshots(includeMetadataChanges: true)
         .map((snapshot) {
-          return snapshot.docs.map((doc) => Note.fromDocument(doc)).toList();
+          final notes = snapshot.docs.map((doc) => Note.fromDocument(doc)).toList();
+          notes.sort((a, b) {
+            if (a.isPinned != b.isPinned) {
+              return a.isPinned ? -1 : 1;
+            }
+            return b.createdAt.compareTo(a.createdAt);
+          });
+          return notes;
         });
   }
 
@@ -24,6 +31,7 @@ class NotesRepository {
     required String userId,
     required String title,
     required String content,
+    bool isPinned = false,
   }) async {
     final docRef = _userNotesCollection(userId).doc();
     await docRef.set({
@@ -31,6 +39,7 @@ class NotesRepository {
       'content': content.trim(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': null,
+      'isPinned': isPinned,
     }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 
@@ -39,11 +48,23 @@ class NotesRepository {
     required String noteId,
     required String title,
     required String content,
+    bool isPinned = false,
   }) async {
     await _userNotesCollection(userId).doc(noteId).update({
       'title': title.trim(),
       'content': content.trim(),
       'updatedAt': FieldValue.serverTimestamp(),
+      'isPinned': isPinned,
+    }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
+  }
+
+  Future<void> togglePinStatus({
+    required String userId,
+    required String noteId,
+    required bool currentStatus,
+  }) async {
+    await _userNotesCollection(userId).doc(noteId).update({
+      'isPinned': !currentStatus,
     }).timeout(const Duration(milliseconds: 400), onTimeout: () {});
   }
 

@@ -129,6 +129,21 @@ class _NotesListScreenState extends State<NotesListScreen> {
     }
   }
 
+  Future<void> _togglePin(Note note) async {
+    try {
+      await _repository.togglePinStatus(
+        userId: _userId,
+        noteId: note.id,
+        currentStatus: note.isPinned,
+      );
+      if (mounted) {
+        _showMessage(note.isPinned ? 'Note unpinned' : 'Note pinned to top');
+      }
+    } catch (error) {
+      if (mounted) _showMessage('Could not update pin status: $error');
+    }
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -305,6 +320,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
                               builder: (_) => NoteEditorScreen(note: note),
                             ),
                           ),
+                          onTogglePin: () => _togglePin(note),
                         ),
                       );
                     },
@@ -335,15 +351,24 @@ class _NoteCard extends StatelessWidget {
     required this.note,
     required this.color,
     required this.onTap,
+    required this.onTogglePin,
   });
 
   final Note note;
   final Color color;
   final VoidCallback onTap;
+  final VoidCallback onTogglePin;
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: note.isPinned ? const Color(0xFF315C4B) : const Color(0xFFECE9E1),
+          width: note.isPinned ? 1.5 : 1.0,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -359,9 +384,10 @@ class _NoteCard extends StatelessWidget {
                   color: color,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  LucideIcons.sticky_note,
-                  color: Color(0xFF315C4B),
+                child: Icon(
+                  note.isPinned ? LucideIcons.pin : LucideIcons.sticky_note,
+                  color: const Color(0xFF315C4B),
+                  size: 20,
                 ),
               ),
               const SizedBox(width: 14),
@@ -369,12 +395,27 @@ class _NoteCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      note.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            note.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        if (note.isPinned)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Icon(
+                              LucideIcons.pin,
+                              size: 14,
+                              color: const Color(0xFF315C4B),
+                            ),
+                          ),
+                      ],
                     ),
                     if (note.content.trim().isNotEmpty) ...[
                       const SizedBox(height: 6),
@@ -424,8 +465,18 @@ class _NoteCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(LucideIcons.chevron_right, color: Color(0xFF9A9E98)),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: note.isPinned ? 'Unpin note' : 'Pin note',
+                onPressed: onTogglePin,
+                icon: Icon(
+                  note.isPinned ? LucideIcons.pin_off : LucideIcons.pin,
+                  size: 18,
+                  color: note.isPinned
+                      ? const Color(0xFF315C4B)
+                      : const Color(0xFF9A9E98),
+                ),
+              ),
             ],
           ),
         ),

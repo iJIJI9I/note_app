@@ -21,6 +21,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
   bool _isLoading = false;
+  late bool _isPinned;
 
   bool get _isEditing => widget.note != null;
 
@@ -31,6 +32,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _contentController = TextEditingController(
       text: widget.note?.content ?? '',
     );
+    _isPinned = widget.note?.isPinned ?? false;
   }
 
   @override
@@ -57,12 +59,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           noteId: widget.note!.id,
           title: _titleController.text,
           content: _contentController.text,
+          isPinned: _isPinned,
         );
       } else {
         await _repository.addNote(
           userId: userId,
           title: _titleController.text,
           content: _contentController.text,
+          isPinned: _isPinned,
         );
       }
 
@@ -138,6 +142,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           icon: const Icon(LucideIcons.arrow_left),
         ),
         actions: [
+          IconButton(
+            tooltip: _isPinned ? 'Unpin note' : 'Pin to top',
+            onPressed: _isLoading
+                ? null
+                : () {
+                    setState(() => _isPinned = !_isPinned);
+                    _showMessage(
+                      _isPinned ? 'Note will be pinned to top' : 'Note unpinned',
+                    );
+                  },
+            icon: Icon(
+              _isPinned ? LucideIcons.pin_off : LucideIcons.pin,
+              color: _isPinned ? const Color(0xFF315C4B) : null,
+            ),
+          ),
           if (_isEditing)
             IconButton(
               tooltip: 'Delete note',
