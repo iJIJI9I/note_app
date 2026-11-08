@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../models/note_model.dart';
@@ -81,6 +82,25 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _shareNote() async {
+    final title = _titleController.text.trim();
+    final content = _contentController.text.trim();
+
+    if (title.isEmpty && content.isEmpty) {
+      _showMessage('The note is empty.');
+      return;
+    }
+
+    final shareText = title.isNotEmpty && content.isNotEmpty
+        ? '$title\n\n$content'
+        : (title.isNotEmpty ? title : content);
+
+    await Share.share(
+      shareText,
+      subject: title.isNotEmpty ? title : 'Note',
+    );
   }
 
   Future<void> _deleteNote() async {
@@ -166,6 +186,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               color: _isPinned ? const Color(0xFF315C4B) : null,
             ),
           ),
+          IconButton(
+            tooltip: 'Share note',
+            onPressed: _isLoading ? null : _shareNote,
+            icon: const Icon(LucideIcons.share_2),
+          ),
           if (_isEditing)
             IconButton(
               tooltip: 'Delete note',
@@ -198,7 +223,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Палітра кольорів
                     SizedBox(
                       height: 44,
                       child: ListView.separated(

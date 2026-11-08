@@ -19,13 +19,6 @@ class NotesListScreen extends StatefulWidget {
 }
 
 class _NotesListScreenState extends State<NotesListScreen> {
-  static const _noteColors = [
-    Color(0xFFF0EBDD),
-    Color(0xFFE7EEE8),
-    Color(0xFFF2E8E3),
-    Color(0xFFE9E9F0),
-  ];
-
   final NotesRepository _repository = NotesRepository();
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
   final TextEditingController _searchController = TextEditingController();
@@ -363,6 +356,7 @@ class _NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
@@ -382,7 +376,7 @@ class _NoteCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: color,
+                  color: Colors.black.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -408,12 +402,12 @@ class _NoteCard extends StatelessWidget {
                           ),
                         ),
                         if (note.isPinned)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 4),
                             child: Icon(
                               LucideIcons.pin,
                               size: 14,
-                              color: const Color(0xFF315C4B),
+                              color: Color(0xFF315C4B),
                             ),
                           ),
                       ],
